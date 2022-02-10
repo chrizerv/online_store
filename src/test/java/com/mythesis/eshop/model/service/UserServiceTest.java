@@ -11,6 +11,7 @@ import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,6 +32,7 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private Validator validator;
     @Mock
@@ -41,10 +43,7 @@ class UserServiceTest {
     @InjectMocks
     private UserService underTest;
 
-    @BeforeEach
-    void setUp(){
-        //underTest = new UserService(userRepository);
-    }
+
 
     @Test
     void canLoadUserByUsername(){
@@ -201,5 +200,73 @@ class UserServiceTest {
     @Test
     void canNotUpdateWithExistingUsername(){
 
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("test");
+        user.setPassword("1234");
+
+        when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(
+                ()-> underTest.update(1L, user)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("username already exists");
+
     }
+
+    @Test
+    void canNotUpdateWithExistingPhone(){
+        User user = new User();
+        user.setPhone("6999999999");
+
+        when(userRepository.findByPhone(user.getPhone())).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(
+                ()-> underTest.update(1L, user)
+        ).isInstanceOf(IllegalArgumentException.class)
+                .hasMessage("phone already exists");
+
+    }
+
+    @Test
+    void canNotUpdateWithViolations(){
+        User user = new User();
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(validator.validate(user).isEmpty()).thenReturn(false);
+
+        assertThatThrownBy(
+                ()-> underTest.update(1L, user)
+        ).isInstanceOf(ConstraintViolationException.class)
+                .hasMessage("Validation errors");
+    }
+
+    @Test
+    void canDelete(){
+        underTest.delete(1L);
+        verify(userRepository).deleteById(1L);
+    }
+
+    @Test
+    void canNotDelete(){
+        doThrow(EmptyResultDataAccessException.class).when(userRepository).deleteById(1L);
+        assertThatThrownBy(
+                ()-> underTest.delete(1L)
+        ).isInstanceOf(NoSuchElementException.class)
+                .hasMessage("User does not exist");
+    }
+
+    @Test
+    void canCheckUsername(){
+        underTest.usernameExists("test");
+        verify(userRepository).findByUsername("test");
+    }
+
+    @Test
+    void canCheckPhone(){
+        underTest.phoneExists("6999999999");
+        verify(userRepository).findByPhone("6999999999");
+    }
+
+
 }
