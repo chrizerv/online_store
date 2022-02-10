@@ -65,7 +65,7 @@ public class UserService implements UserDetailsService {
         try {
             user = userRepository.findById(userId).get();
         }catch (NoSuchElementException ex){
-            throw ex;
+            throw new NoSuchElementException("No such User");
         }
         return user;
     }
