@@ -22,10 +22,6 @@ public class UserMapper {
         return modelMapper.map(user, UserInfoDTO.class);
     }
 
-    public UserLoginDTO toUserLoginDto(Object user) {
-        return modelMapper.map(user, UserLoginDTO.class);
-    }
-
     public User fromUserRegDto(UserRegisterDTO user){
         return modelMapper.map(user, User.class);
     }
