@@ -30,6 +30,7 @@ public class OrderItemMapper {
     public OrderItemInfoDTO toOrderItemInfoDto(OrderItem orderItem){
         OrderItemInfoDTO mapped = modelMapper.map(orderItem, OrderItemInfoDTO.class);
         mapped.setOrderId(orderItem.getOrder().getId());
+        mapped.setProductId(orderItem.getProduct().getId());
         return mapped;
     }
 

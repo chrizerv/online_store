@@ -36,13 +36,17 @@ class OrderItemMapperTest {
     void canConvertToOrderItemInfoDto() {
         OrderItem inputOrderItem = new OrderItem();
         Order order = new Order();
+        Product product = new Product();
         order.setId(1L);
+        product.setId(2L);
         inputOrderItem.setOrder(order);
+        inputOrderItem.setProduct(product);
 
         when(modelMapper.map(inputOrderItem, OrderItemInfoDTO.class)).thenReturn(new OrderItemInfoDTO());
         OrderItemInfoDTO outOrderItem = underTest.toOrderItemInfoDto(inputOrderItem);
 
-        assertThat(outOrderItem.getOrderId()).isEqualTo(1l);
+        assertThat(outOrderItem.getOrderId()).isEqualTo(1L);
+        assertThat(outOrderItem.getProductId()).isEqualTo(2L);
     }
 
     @Test
