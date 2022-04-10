@@ -46,7 +46,7 @@ public class ProductService {
         try {
             product = productRepository.findById(productId).get();
         } catch (NoSuchElementException ex){
-            throw ex;
+            throw new NoSuchElementException("No such Product");
         }
         return product;
     }
