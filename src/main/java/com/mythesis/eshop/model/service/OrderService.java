@@ -44,7 +44,7 @@ public class OrderService {
         try {
             order = orderRepository.findById(orderId).get();
         }catch (NoSuchElementException ex){
-            throw ex;
+            throw new NoSuchElementException("No such Order");
         }
         return order;
 

@@ -70,6 +70,19 @@ class ProductServiceTest {
     }
 
     @Test
+    void canRetrieveAllOrderedByUser(){
+        underTest.retrieveAllOrderedByUser(3L);
+        verify(productRepository).findAllOrderedByUserId(3L);
+    }
+
+    @Test
+    void canRetrieveAllInCartByUser(){
+        underTest.retrieveAllInCartByUser(3L);
+        verify(productRepository).findAllInCartByUserId(3L);
+    }
+
+
+    @Test
     void canNotRetrieveByNonExistingId(){
         when(productRepository.findById(55L)).thenThrow(NoSuchElementException.class);
 
