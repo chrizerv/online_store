@@ -38,9 +38,9 @@ public class CategoryService {
 
         Category category;
         try {
-            category =categoryRepository.findById(categoryId).get();
+            category = categoryRepository.findById(categoryId).get();
         }catch (NoSuchElementException ex){
-            throw ex;
+            throw new NoSuchElementException("No such Category");
         }
         return category;
 

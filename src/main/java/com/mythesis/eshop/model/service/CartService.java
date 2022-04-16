@@ -39,8 +39,13 @@ public class CartService {
     }
 
     public Cart retrieveById (Long cartId){
-
-        return cartRepository.findById(cartId).get();
+        Cart cart;
+        try {
+            cart = cartRepository.findById(cartId).get();
+        }catch (NoSuchElementException ex){
+            throw new NoSuchElementException("No such Cart");
+        }
+        return  cart;
     }
 
     public Cart add(Cart cart){

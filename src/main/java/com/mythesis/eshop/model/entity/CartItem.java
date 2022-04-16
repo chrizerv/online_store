@@ -49,6 +49,10 @@ public class CartItem {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Cart getCart() {
         return cart;
     }

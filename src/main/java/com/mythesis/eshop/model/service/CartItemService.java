@@ -38,7 +38,14 @@ public class CartItemService {
         return  cartItemRepository.findAllByCartId(cartId);
     }
     public CartItem retrieveById (Long cartItemId){
-        return cartItemRepository.findById(cartItemId).get();
+        CartItem cartItem;
+        try {
+            cartItem = cartItemRepository.findById(cartItemId).get();
+        }catch (NoSuchElementException ex){
+            throw new NoSuchElementException("No such Cart item");
+        }
+        return  cartItem;
+
     }
 
     public CartItem add(CartItem cartItem){
@@ -67,7 +74,7 @@ public class CartItemService {
         try {
             cartItemRepository.deleteById(cartItemId);
         }catch (EmptyResultDataAccessException ex){
-            throw new NoSuchElementException("Cart Item does not exist");
+            throw new NoSuchElementException("Cart item does not exist");
         }
     }
 }
