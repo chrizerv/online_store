@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
         StringWriter sw = new StringWriter();
         PrintWriter pw = new PrintWriter(sw);
         ex.printStackTrace(pw);
-        System.out.println(sw.toString());
+        System.out.println(sw);
         ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST.value(), ex.getMessage());
         return buildErrorResponse(ex,apiError,HttpStatus.BAD_REQUEST, request);
     }

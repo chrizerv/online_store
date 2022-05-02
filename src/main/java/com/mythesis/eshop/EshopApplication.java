@@ -34,7 +34,7 @@ public class EshopApplication {
 	public PasswordEncoder passwordEncoder(){
 		return new BCryptPasswordEncoder();
 	}
-
+/*
 	@Bean
 	public CommandLineRunner demo(
 			UserService repository,
@@ -156,6 +156,6 @@ public class EshopApplication {
 
 
 		};
-	}
+	} */
 
 }
