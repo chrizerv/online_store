@@ -244,7 +244,7 @@ class UserControllerTest {
     }
 
     @Test
-    void canUpdateUser_andReturn403() throws Exception {
+    void canNotUpdateUser_andReturn403() throws Exception {
         UserRegisterDTO userRegister = new UserRegisterDTO();
         mockMvc.perform(put("/users/{userId}", 1L)
                         .contentType("application/json")
