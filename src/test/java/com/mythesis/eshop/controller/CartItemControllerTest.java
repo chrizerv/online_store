@@ -2,18 +2,18 @@ package com.mythesis.eshop.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mythesis.eshop.dto.CartItemEntryDTO;
+import com.mythesis.eshop.dto.CartItemInfoDTO;
 import com.mythesis.eshop.dto.CategoryEntryDTO;
 import com.mythesis.eshop.dto.CategoryInfoDTO;
-import com.mythesis.eshop.dto.OrderEntryDTO;
-import com.mythesis.eshop.dto.OrderInfoDTO;
 import com.mythesis.eshop.exception.ApiError;
+import com.mythesis.eshop.model.entity.CartItem;
 import com.mythesis.eshop.model.entity.Category;
 import com.mythesis.eshop.model.entity.Order;
-import com.mythesis.eshop.model.repository.CategoryRepository;
+import com.mythesis.eshop.model.service.CartItemService;
 import com.mythesis.eshop.model.service.CategoryService;
-import com.mythesis.eshop.model.service.OrderService;
+import com.mythesis.eshop.util.CartItemMapper;
 import com.mythesis.eshop.util.CategoryMapper;
-import com.mythesis.eshop.util.OrderMapper;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +36,14 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@WebMvcTest(CategoryController.class)
-class CategoryControllerTest {
+@WebMvcTest(CartItemController.class)
+class CartItemControllerTest {
 
     @MockBean
-    private CategoryService categoryService;
+    private CartItemService cartItemService;
 
     @MockBean
-    private CategoryMapper categoryMapper;
+    private CartItemMapper cartItemMapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -53,24 +53,24 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canGetCategories_andReturn200() throws Exception {
+    void canGetCartItems_andReturn200() throws Exception {
 
-        List<Category> categories = new ArrayList<>();
-        categories.add(new Category());
-        categories.add(new Category());
-        when(categoryService.retrieveAll()).thenReturn(categories);
+        List<CartItem> cartItems = new ArrayList<>();
+        cartItems.add(new CartItem());
+        cartItems.add(new CartItem());
+        when(cartItemService.retrieveAll()).thenReturn(cartItems);
 
-        mockMvc.perform(get("/categories"))
+        mockMvc.perform(get("/cartItems"))
                 .andExpect(status().isOk());
 
-        verify(categoryMapper).toCategoryInfoDto(categories.get(0));
-        verify(categoryMapper).toCategoryInfoDto(categories.get(1));
+        verify(cartItemMapper).toCartItemInfoDto(cartItems.get(0));
+        verify(cartItemMapper).toCartItemInfoDto(cartItems.get(1));
 
     }
 
     @Test
-    void canNotGetCategories_andReturn403() throws Exception {
-        mockMvc.perform(get("/categories"))
+    void canNotGetCartItems_andReturn403() throws Exception {
+        mockMvc.perform(get("/cartItems"))
                 .andExpect(status().isForbidden());
 
     }
@@ -78,27 +78,27 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canGetCategory_andReturn200() throws Exception {
-        Category category = new Category();
-        CategoryInfoDTO expectedCategory = new CategoryInfoDTO();
-        expectedCategory.setTitle("test");
+    void canGetCartItem_andReturn200() throws Exception {
+        CartItem cartItem = new CartItem();
+        CartItemInfoDTO expectedCartItem = new CartItemInfoDTO();
+        expectedCartItem.setId(4L);
 
-        when(categoryService.retrieveById(eq(1L))).thenReturn(category);
-        when(categoryMapper.toCategoryInfoDto(eq(category))).thenReturn(expectedCategory);
+        when(cartItemService.retrieveById(eq(1L))).thenReturn(cartItem);
+        when(cartItemMapper.toCartItemInfoDto(eq(cartItem))).thenReturn(expectedCartItem);
 
-        MvcResult mvcResult = mockMvc.perform(get("/categories/{categoryId}", 1L))
+        MvcResult mvcResult = mockMvc.perform(get("/cartItems/{cartItemId}", 1L))
                 .andExpect(status().isOk())
                 .andReturn();
 
         String actualResponseBody = mvcResult.getResponse().getContentAsString();
 
         assertThat(actualResponseBody).isEqualToIgnoringWhitespace(
-                objectMapper.writeValueAsString(expectedCategory)
+                objectMapper.writeValueAsString(expectedCartItem)
         );
     }
 
     @Test
-    void caNotGetCategory_andReturn403() throws Exception {
+    void caNotGetCartItem_andReturn403() throws Exception {
        mockMvc.perform(get("/categories/{categoryId}", 1L))
                 .andExpect(status().isForbidden());
 
@@ -107,14 +107,14 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotGetCategoryWithWrongId_andReturn404() throws Exception {
+    void canNotGetCartItemWithWrongId_andReturn404() throws Exception {
 
-        when(categoryService.retrieveById(eq(2L))).thenThrow(new NoSuchElementException("No such Category"));
-        MvcResult mvcResult  = mockMvc.perform(get("/categories/{categoryId}", 2L))
+        when(cartItemService.retrieveById(eq(2L))).thenThrow(new NoSuchElementException("No such Cart Item"));
+        MvcResult mvcResult  = mockMvc.perform(get("/cartItems/{cartItemId}", 2L))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        ApiError expectedErrorResponse = new ApiError(HttpStatus.NOT_FOUND.value(),"No such Category");
+        ApiError expectedErrorResponse = new ApiError(HttpStatus.NOT_FOUND.value(),"No such Cart Item");
         String actualResponseBody = mvcResult.getResponse().getContentAsString();
 
         assertThat(actualResponseBody).isEqualToIgnoringWhitespace(
@@ -124,40 +124,40 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canCreateCategory_andReturn200() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
-        categoryEntry.setTitle("cat");
-        Category category = new Category();
-        category.setTitle("cat");
+    void canCreateCartItem_andReturn200() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
+        cartItemEntry.setCartId(4L);
+        CartItem cartItem = new CartItem();
+        cartItem.setId(4L);
 
-        when(categoryMapper.fromCategoryEntryDto(any())).thenReturn(category);
+        when(cartItemMapper.fromCartItemEntryDto(any())).thenReturn(cartItem);
 
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/cartItems")
                 .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isOk());
 
 
-        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
-        ArgumentCaptor<CategoryEntryDTO> categoryEntryCaptor = ArgumentCaptor.forClass(CategoryEntryDTO.class);
-        verify(categoryMapper, times(1)).fromCategoryEntryDto(categoryEntryCaptor.capture());
-        verify(categoryService, times(1)).add(categoryCaptor.capture());
+        ArgumentCaptor<CartItem> cartItemCaptor = ArgumentCaptor.forClass(CartItem.class);
+        ArgumentCaptor<CartItemEntryDTO> cartItemEntryCaptor = ArgumentCaptor.forClass(CartItemEntryDTO.class);
+        verify(cartItemMapper, times(1)).fromCartItemEntryDto(cartItemEntryCaptor.capture());
+        verify(cartItemService, times(1)).add(cartItemCaptor.capture());
 
-        assertThat(categoryEntryCaptor.getValue().getTitle())
-                .isEqualTo("cat");
-        assertThat(categoryCaptor.getValue().getTitle())
-                .isEqualTo("cat");
+        assertThat(cartItemEntryCaptor.getValue().getCartId())
+                .isEqualTo(4L);
+        assertThat(cartItemCaptor.getValue().getId())
+                .isEqualTo(4L);
 
     }
 
     @Test
-    void canNotCreateCategory_andReturn403() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
-        categoryEntry.setTitle("cat");
+    void canNotCreateCartItem_andReturn403() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
+        cartItemEntry.setCartId(4L);
 
-        mockMvc.perform(post("/categories")
+        mockMvc.perform(post("/cartItems")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isForbidden());
 
 
@@ -165,8 +165,8 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotCreateCategoryWhenViolations_andReturn400() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
+    void canNotCreateCartItemWhenViolations_andReturn400() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
         Set<ConstraintViolation<Order>> violations = new HashSet<>();
 
         List<String> expectedViolations = violations
@@ -175,10 +175,10 @@ class CategoryControllerTest {
                 .collect(Collectors.toList());
 
 
-        when(categoryService.add(any())).thenThrow(new ConstraintViolationException("Validation errors",violations));
-        MvcResult mvcResult  =  mockMvc.perform(post("/categories")
+        when(cartItemService.add(any())).thenThrow(new ConstraintViolationException("Validation errors",violations));
+        MvcResult mvcResult  =  mockMvc.perform(post("/cartItems")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -193,14 +193,14 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotCreateCategoryWhenIllegalArgs_andReturn400() throws Exception {
+    void canNotCreateCartItemWhenIllegalArgs_andReturn400() throws Exception {
 
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
 
-        when(categoryService.add(any())).thenThrow(new IllegalArgumentException("Field already exists"));
-        MvcResult mvcResult  =  mockMvc.perform(post("/categories")
+        when(cartItemService.add(any())).thenThrow(new IllegalArgumentException("Field already exists"));
+        MvcResult mvcResult  =  mockMvc.perform(post("/cartItems")
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -215,50 +215,50 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canUpdateCategory_andReturn200() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
-        categoryEntry.setTitle("cat");
-        Category category = new Category();
-        category.setTitle("cat");
+    void canUpdateCartItem_andReturn200() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
+        cartItemEntry.setCartId(4L);
+        CartItem cartItem = new CartItem();
+        cartItem.setId(4L);
 
-        when(categoryMapper.fromCategoryEntryDto(any())).thenReturn(category);
+        when(cartItemMapper.fromCartItemEntryDto(any())).thenReturn(cartItem);
 
-        mockMvc.perform(put("/categories/{categoryId}", 1L)
+        mockMvc.perform(put("/cartItems/{cartItemId}", 1L)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isOk());
 
 
-        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
+        ArgumentCaptor<CartItem> cartItemCaptor = ArgumentCaptor.forClass(CartItem.class);
         ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
-        ArgumentCaptor<CategoryEntryDTO> categoryEntryCaptor = ArgumentCaptor.forClass(CategoryEntryDTO.class);
+        ArgumentCaptor<CartItemEntryDTO> categoryEntryCaptor = ArgumentCaptor.forClass(CartItemEntryDTO.class);
 
-        verify(categoryMapper, times(1)).fromCategoryEntryDto(categoryEntryCaptor.capture());
-        verify(categoryService, times(1)).update(idCaptor.capture(), categoryCaptor.capture());
+        verify(cartItemMapper, times(1)).fromCartItemEntryDto(categoryEntryCaptor.capture());
+        verify(cartItemService, times(1)).update(idCaptor.capture(), cartItemCaptor.capture());
 
-        assertThat(categoryEntryCaptor.getValue().getTitle())
-                .isEqualTo("cat");
-        assertThat(categoryCaptor.getValue().getTitle())
-                .isEqualTo("cat");
+        assertThat(categoryEntryCaptor.getValue().getCartId())
+                .isEqualTo(4L);
+        assertThat(cartItemCaptor.getValue().getId())
+                .isEqualTo(4L);
         assertThat(idCaptor.getValue())
                 .isEqualTo(1L);
 
     }
 
     @Test
-    void canNotUpdateCategory_andReturn403() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
-        mockMvc.perform(put("/categories/{categoryId}", 1L)
+    void canNotUpdateCartItem_andReturn403() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
+        mockMvc.perform(put("/cartItems/{cartItemId}", 1L)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isForbidden());
 
     }
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotUpdateCategoryWhenViolations_andReturn400() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
+    void canNotUpdateCartItemWhenViolations_andReturn400() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
         Set<ConstraintViolation<Order>> violations = new HashSet<>();
 
         List<String> expectedViolations = violations
@@ -266,10 +266,10 @@ class CategoryControllerTest {
                 .map(violation -> violation.getMessage())
                 .collect(Collectors.toList());
 
-        when(categoryService.update(eq(1L), any())).thenThrow(new ConstraintViolationException("Validation errors",violations));
-        MvcResult mvcResult  =  mockMvc.perform(put("/categories/{categoryId}", 1L)
+        when(cartItemService.update(eq(1L), any())).thenThrow(new ConstraintViolationException("Validation errors",violations));
+        MvcResult mvcResult  =  mockMvc.perform(put("/cartItems/{cartItemId}", 1L)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -284,13 +284,13 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotUpdateCategoryWhenIllegalArgs_andReturn400() throws Exception {
-        CategoryEntryDTO categoryEntry = new CategoryEntryDTO();
+    void canNotUpdateCartItemWhenIllegalArgs_andReturn400() throws Exception {
+        CartItemEntryDTO cartItemEntry = new CartItemEntryDTO();
 
-        when(categoryService.update(eq(1L), any())).thenThrow(new IllegalArgumentException("Field already exists"));
-        MvcResult mvcResult  =  mockMvc.perform(put("/categories/{categoryId}", 1L)
+        when(cartItemService.update(eq(1L), any())).thenThrow(new IllegalArgumentException("Field already exists"));
+        MvcResult mvcResult  =  mockMvc.perform(put("/cartItems/{cartItemId}", 1L)
                         .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(categoryEntry)))
+                        .content(objectMapper.writeValueAsString(cartItemEntry)))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
@@ -304,13 +304,13 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "ADMIN" })
-    void canDeleteCategory_andReturn200() throws Exception {
+    void canDeleteCartItem_andReturn200() throws Exception {
 
-        mockMvc.perform(delete("/categories/{categoryId}", 3L))
+        mockMvc.perform(delete("/cartItems/{cartItemId}", 3L))
                 .andExpect(status().isOk());
 
         ArgumentCaptor<Long> idCaptor = ArgumentCaptor.forClass(Long.class);
-        verify(categoryService, times(1)).deleteById(idCaptor.capture());
+        verify(cartItemService, times(1)).deleteById(idCaptor.capture());
 
         assertThat(idCaptor.getValue())
                 .isEqualTo(3L);
@@ -319,22 +319,22 @@ class CategoryControllerTest {
 
     @Test
     @WithMockUser(username = "test", roles = { "USER" })
-    void canNotDeleteCategoryWhenNotADMIN_andReturn403() throws Exception {
-        mockMvc.perform(delete("/categories/{categoryId}", 3L))
+    void canNotDeleteCartItemWhenNotADMIN_andReturn403() throws Exception {
+        mockMvc.perform(delete("/cartItems/{cartItemId}", 3L))
                 .andExpect(status().isForbidden());
 
     }
 
     @Test
     @WithMockUser(username = "test", roles = { "ADMIN" })
-    void canNotDeleteCategoryWhenWrongID_andReturn404() throws Exception {
+    void canNotDeleteCartItemWhenWrongID_andReturn404() throws Exception {
 
-        doThrow(new NoSuchElementException("Category does not exist")).when(categoryService).deleteById(3L);
-       MvcResult mvcResult = mockMvc.perform(delete("/categories/{categoryId}", 3L))
+        doThrow(new NoSuchElementException("Cart Item does not exist")).when(cartItemService).deleteById(3L);
+       MvcResult mvcResult = mockMvc.perform(delete("/cartItems/{cartItemId}", 3L))
                 .andExpect(status().isNotFound())
                 .andReturn();
 
-        ApiError expectedErrorResponse = new ApiError(HttpStatus.NOT_FOUND.value(),"Category does not exist");
+        ApiError expectedErrorResponse = new ApiError(HttpStatus.NOT_FOUND.value(),"Cart Item does not exist");
         String actualResponseBody = mvcResult.getResponse().getContentAsString();
 
         assertThat(actualResponseBody).isEqualToIgnoringWhitespace(
