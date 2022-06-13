@@ -1,6 +1,6 @@
 package com.mythesis.eshop.model.service;
 
-import com.mythesis.eshop.model.entity.Cart;
+import com.mythesis.eshop.model.entity.*;
 import com.mythesis.eshop.model.repository.CartRepository;
 import com.mythesis.eshop.util.CartMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -77,4 +78,6 @@ public class CartService {
             throw new NoSuchElementException("Cart does not exist");
         }
     }
+
+
 }

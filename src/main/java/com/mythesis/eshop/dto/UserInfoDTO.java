@@ -8,6 +8,7 @@ public class UserInfoDTO {
     private String lastName;
     private String address;
     private String phone;
+    private Double balance;
 
     public Long getId() {
         return id;
@@ -55,6 +56,14 @@ public class UserInfoDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
 
 

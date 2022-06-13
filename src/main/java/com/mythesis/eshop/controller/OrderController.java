@@ -35,6 +35,11 @@ public class OrderController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping(path = "/stats")
+    public void getStats(){
+       orderService.stats();
+    }
+
     @PostMapping
     public OrderInfoDTO createOrder(@RequestBody OrderEntryDTO order){
         Order mappedOrder = orderMapper.fromOrderEntryDto(order);

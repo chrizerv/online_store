@@ -115,7 +115,8 @@ class UserServiceTest {
                 "testName",
                 "testLast",
                 "somewhere",
-                "6999999999");
+                "6999999999",
+                13.0);
 
         when(validator.validate(user)).thenReturn(new HashSet<>());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.empty());
@@ -135,7 +136,8 @@ class UserServiceTest {
                 "testName",
                 "testLast",
                 "somewhere",
-                "6999999999");
+                "6999999999",
+                20.3);
 
         when(validator.validate(user)).thenReturn(new HashSet<>());
         when(userRepository.findByUsername(user.getUsername())).thenReturn(Optional.of(user));
@@ -154,7 +156,8 @@ class UserServiceTest {
                 "testName",
                 "testLast",
                 "somewhere",
-                "6999999999");
+                "6999999999",
+                0.0);
 
         when(validator.validate(user)).thenReturn(new HashSet<>());
         when(userRepository.findByPhone(user.getPhone())).thenReturn(Optional.of(user));

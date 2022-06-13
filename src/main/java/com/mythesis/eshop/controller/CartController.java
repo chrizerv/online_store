@@ -3,6 +3,7 @@ package com.mythesis.eshop.controller;
 import com.mythesis.eshop.dto.CartEntryDTO;
 import com.mythesis.eshop.dto.CartInfoDTO;
 import com.mythesis.eshop.model.entity.Cart;
+import com.mythesis.eshop.model.service.CartItemService;
 import com.mythesis.eshop.model.service.CartService;
 import com.mythesis.eshop.util.CartMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,17 +17,24 @@ import java.util.stream.Collectors;
 public class CartController {
 
     private final CartService cartService;
+    private final CartItemService cartItemService;
     private final CartMapper cartMapper;
 
     @Autowired
-    public CartController(CartService cartService, CartMapper cartMapper) {
+    public CartController(CartService cartService, CartItemService cartItemService, CartMapper cartMapper) {
         this.cartService = cartService;
+        this.cartItemService = cartItemService;
         this.cartMapper = cartMapper;
     }
 
     @GetMapping("/{cartId}")
     public CartInfoDTO getCart(@PathVariable("cartId") Long cartId){
         return cartMapper.toCartInfoDto(cartService.retrieveById(cartId));
+    }
+
+    @GetMapping("/{cartId}/purchase")
+    public Boolean purchaseAllInCartItems(@PathVariable("cartId") Long cartId){
+        return cartItemService.purchaseAllInCartItems(cartId);
     }
 
     @GetMapping

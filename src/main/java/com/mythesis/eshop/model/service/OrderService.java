@@ -11,9 +11,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
 
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class OrderService {
@@ -79,6 +77,26 @@ public class OrderService {
         }catch (EmptyResultDataAccessException ex){
             throw new NoSuchElementException("Order does not exist");
         }
+
+    }
+
+    public void stats(){
+        List<Order> orders = new ArrayList<>();
+        List<Optional<Order>> foundOrders = new ArrayList<>();
+
+        for (long i = 0; i < 999999; i++){
+            Order order = new Order();
+            order.setId(i);
+            orders.add(order);
+            foundOrders.add(orderRepository.findById(order.getId()));
+
+        }
+        for (Optional<Order> fo : foundOrders){
+            if (fo.isPresent()){
+                orders.remove(fo.get());
+            }
+        }
+
 
     }
 

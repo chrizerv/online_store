@@ -34,6 +34,8 @@ public class User {
 
     private String role;
 
+    private Double balance;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Order> orders;
 
@@ -54,7 +56,8 @@ public class User {
                 String firstName,
                 String lastName,
                 String address,
-                String phone) {
+                String phone,
+                Double balance) {
 
         this.username = username;
         this.password = password;
@@ -62,6 +65,7 @@ public class User {
         this.lastName = lastName;
         this.address = address;
         this.phone = phone;
+        this.balance = balance;
     }
 
     public Long getId() {
@@ -142,6 +146,14 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(Double balance) {
+        this.balance = balance;
     }
 
     @Override

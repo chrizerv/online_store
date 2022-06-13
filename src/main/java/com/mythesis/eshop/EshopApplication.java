@@ -1,40 +1,61 @@
 package com.mythesis.eshop;
 
-import com.mythesis.eshop.model.entity.*;
-import com.mythesis.eshop.model.repository.*;
-import com.mythesis.eshop.model.service.UserService;
+
+import com.mythesis.eshop.controller.OrderController;
+import com.mythesis.eshop.model.entity.CartItem;
+import com.mythesis.eshop.model.entity.Order;
+import com.mythesis.eshop.model.entity.OrderItem;
+import com.mythesis.eshop.model.entity.User;
+import com.mythesis.eshop.model.service.CartItemService;
+import com.mythesis.eshop.model.service.CartService;
+import com.mythesis.eshop.model.service.OrderService;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+
+import javax.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.List;
 
 @SpringBootApplication
+
 public class EshopApplication {
 
 	private static final Logger log = LoggerFactory.getLogger(EshopApplication.class);
+
+	@Autowired
+	private CartItemService cartItemService;
+
+
+
+
 
 
 	public static void main(String[] args) {
 		SpringApplication.run(EshopApplication.class, args);
 	}
 
+/*
 	@Bean
-	public ModelMapper modelMapper(){
-		ModelMapper modelMapper = new ModelMapper();
-		modelMapper.getConfiguration().setSkipNullEnabled(true);
-		return modelMapper;
+	public  CommandLineRunner demo(){
+		return (args) -> {
+
+			cartItemService.purchaseAllInCartItems(11L);
+			System.out.println("asdasd");
+
+
+		};
 	}
 
-	@Bean
-	public PasswordEncoder passwordEncoder(){
-		return new BCryptPasswordEncoder();
-	}
-/*
 	@Bean
 	public CommandLineRunner demo(
 			UserService repository,

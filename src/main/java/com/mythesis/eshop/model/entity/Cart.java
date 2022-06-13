@@ -54,6 +54,14 @@ public class Cart {
         return user;
     }
 
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
+    }
+
     public void setUser(User user) {
         this.user = user;
     }
