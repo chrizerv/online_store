@@ -45,7 +45,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.addFilter(new JwtUsernamePasswordAuthenticationFilter(authenticationManager()));
         http.addFilterBefore(new JwtTokenVerifier(), JwtUsernamePasswordAuthenticationFilter.class);
         http.authorizeRequests().antMatchers(HttpMethod.DELETE).hasAuthority("ROLE_ADMIN");
-        http.authorizeRequests().anyRequest().authenticated();
+        http.authorizeRequests().anyRequest().permitAll();
     }
 
 

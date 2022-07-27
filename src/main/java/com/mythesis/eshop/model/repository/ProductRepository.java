@@ -28,4 +28,15 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "ci.product.id = p.id AND " +
             "u.id = ?1")
     List<Product> findAllInCartByUserId(Long userId);
+
+    @Query("SELECT p " +
+            "FROM User u, Cart c, CartItem ci, Order o, OrderItem oi, Product p " +
+            "WHERE c.user.id = u.id AND " +
+            "ci.cart.id = c.id AND " +
+            "o.user.id = u.id AND " +
+            "oi.order.id = o.id AND " +
+            "oi.product.id = ci.product.id AND " +
+            "ci.product.id = p.id AND " +
+            "u.id = ?1")
+    List<Product> findProductsOrderedAndInCartByUser(Long userId);
 }

@@ -1,5 +1,6 @@
 package com.mythesis.eshop.model.service;
 
+import com.mythesis.eshop.model.entity.CartItem;
 import com.mythesis.eshop.model.entity.Product;
 import com.mythesis.eshop.model.repository.ProductRepository;
 import com.mythesis.eshop.util.ProductMapper;
@@ -94,4 +95,32 @@ public class ProductService {
         return productRepository.findBySku(sku).isPresent();
     }
 
+    public Double getTotalPriceOfProducts(List<CartItem> cartItems) {
+        Double totalPrice = 0.0;
+        for (CartItem ci : cartItems) {
+            Integer quantity = ci.getQuantity();
+            Long productId = ci.getProduct().getId();
+            Double productPrice = productRepository.findById(productId).get().getPrice();
+            totalPrice += (productPrice * quantity);
+        }
+        return totalPrice;
+    }
+    public void updateProductStock(List<CartItem> cartItems) {
+
+        for ( CartItem entry : cartItems ){
+            Product product = this.retrieveById(entry.getProduct().getId());
+            if (product.getInStock() < entry.getQuantity()){
+                throw new IllegalStateException("Product Not In stock");
+                //productAvailable = false;
+            }
+            product.setInStock(product.getInStock() - entry.getQuantity());
+
+            productRepository.save(product);
+        }
+
+    }
+
+    public List<Product> getProductsOrderedAndInCartByUser(Long userId) {
+        return productRepository.findProductsOrderedAndInCartByUser(userId);
+    }
 }

@@ -127,4 +127,13 @@ public class UserService implements UserDetailsService {
                 .isPresent();
     }
 
+    public void deductAmount(Long userId, Double amount) {
+        User user = this.retrieveById(userId);
+        System.out.println("UserId: " + userId + " Balance: " + user.getBalance() + " amount to deduct: " + amount);
+        if (user.getBalance() < amount)
+            throw new IllegalStateException("Not enough Balance");
+
+        user.setBalance(user.getBalance() - amount);
+        userRepository.save(user);
+    }
 }

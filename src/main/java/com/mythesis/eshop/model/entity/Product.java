@@ -34,6 +34,8 @@ public class Product {
     @NotNull(message = "price must not be blank")
     private Double price;
 
+    private Integer inStock;
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private List<CartItem> cartItems;
 
@@ -106,6 +108,14 @@ public class Product {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Integer getInStock() {
+        return inStock;
+    }
+
+    public void setInStock(Integer inStock) {
+        this.inStock = inStock;
     }
 
     @Override

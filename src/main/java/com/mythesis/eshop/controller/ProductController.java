@@ -39,6 +39,14 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping(path = "/orderedAndInCartByUser/{userId}")
+    public List<ProductInfoDTO> getProductsOrdered(@PathVariable("userId") Long userId) {
+        return productService.getProductsOrderedAndInCartByUser(userId)
+                .stream()
+                .map(productMapper::toProductInfoDto)
+                .collect(Collectors.toList());
+    }
+
     @PostMapping
     public ProductInfoDTO createProduct(@RequestBody ProductEntryDTO product){
         Product pro = productMapper.fromProductEntryDto(product);

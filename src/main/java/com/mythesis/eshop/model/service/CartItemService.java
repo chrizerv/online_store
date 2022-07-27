@@ -26,6 +26,8 @@ public class CartItemService {
     private OrderService orderService;
     private PaymentService paymentService;
     private ShippingService shippingService;
+    private UserService userService;
+    private ProductService productService;
 
     @Autowired
     public CartItemService(CartItemRepository cartItemRepository,
@@ -34,6 +36,8 @@ public class CartItemService {
                            CartService cartService,
                            PaymentService paymentService,
                            ShippingService shippingService,
+                           UserService userService,
+                           ProductService productService,
                            Validator validator) {
         this.cartItemRepository = cartItemRepository;
         this.cartItemMapper = cartItemMapper;
@@ -41,6 +45,8 @@ public class CartItemService {
         this.orderService = orderService;
         this.paymentService = paymentService;
         this.shippingService = shippingService;
+        this.userService = userService;
+        this.productService = productService;
         this.validator = validator;
     }
 
@@ -92,7 +98,7 @@ public class CartItemService {
         }
     }
 
-    /* The order of the transactions does not matter. All of the must be completed or not regardless which is first, second etc.*/
+    /* The order of the transactions does not matter. All of them must be completed or not regardless which is first, second etc.*/
     @Transactional
     public Boolean purchaseAllInCartItems(Long cartId){
         User user = cartService.retrieveById(cartId).getUser();
@@ -102,20 +108,25 @@ public class CartItemService {
         order.setUser(user);
 
         List<OrderItem> orderItemList = new ArrayList<>();
-        Double total = 0.0;
+
         for (CartItem ci : cartItemList) {
 
             orderItemList.add(
                     new OrderItem(order, ci.getProduct())
             );
-            total += ci.getProduct().getPrice();
+         //   total += ci.getProduct().getPrice();
         }
+        Double total = 0.0;
+        total = productService.getTotalPriceOfProducts(cartItemList);
         order.setTotal(total);
         order.setOrderItems(orderItemList);
 
         orderService.createOrder(order);
-        paymentService.pay(user.getId(), total);
-        shippingService.ship(order);
+        userService.deductAmount(user.getId(), total);
+        productService.updateProductStock(cartItemList);
+
+       // paymentService.pay(user.getId(), total);
+      //  shippingService.ship(order);
 
         return true;
     }
